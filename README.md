@@ -6,7 +6,7 @@ All countries are blocked by default, to allow a country to access the index-pag
 and add the country code (ex. NO or UK).
 
 ## Online example
-To test an online example go to https://geobloker.neksa.no
+To test an online example go to https://geoblocker.neksa.no
 
 ## Prerequisites
 You will need [Leiningen][] 2.0.0 or above installed.
