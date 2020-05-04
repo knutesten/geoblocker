@@ -1,0 +1,49 @@
+- hosts: prod
+  remote_user: root
+  tasks:
+    - name: Create letsencrypt certificate for geoblocker.neksa.no
+      shell: letsencrypt certonly -n --webroot -w /var/www/letsencrypt -m knut.neksa@gmail.com --agree-tos -d geoblocker.neksa.no
+      args:
+        creates: /etc/letsencrypt/live/geoblocker.neksa.no
+
+    - name: Install geoblocker.neksa.no nginx config
+      copy:
+        src: ./geoblocker
+        dest: /etc/nginx/sites-available/geoblocker
+
+    - name: Create symlink for geoblocker.neksa.no nginx config
+      file:
+        src: /etc/nginx/sites-available/geoblocker
+        dest: /etc/nginx/sites-enabled/geoblocker
+        state: link
+
+    - name: Create geoblocker.neksa.no directory
+      file:
+        path: /opt/geoblocker
+        state: directory
+        owner: knutn
+        group: knutn
+
+    - name: Reload nginx
+      service: name=nginx state=restarted
+
+    - name: Add Let's Encrypt cronjob for cert renewal for geoblocker.neksa.no
+      cron:
+        name: letsencrypt_renewal_cv
+        special_time: weekly
+        job: letsencrypt --renew certonly -n --webroot -w /var/www/letsencrypt -m knut.neksa@gmail.com --agree-tos -d geoblocker.neksa.no && systemctl reload nginx
+
+    - name: Copy geoblocker.service
+      copy:
+        src: ./geoblocker.service
+        dest: /etc/systemd/system/
+
+    - name: Start geoblocker service
+      systemd:
+        state: started
+        enabled: yes
+        name: geoblocker
+
+    - name: Reload systemd
+      systemd:
+        daemon_reload: yes

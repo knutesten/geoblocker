@@ -1,0 +1,12 @@
+[Unit]
+Description=Geoblocker
+After=network.target
+
+[Service]
+WorkingDirectory=/opt/geoblocker
+Environment=PORT=9000
+ExecStart=/home/knutn/.sdkman/candidates/java/8.0.252.j9-adpt/bin/java -jar geoblocker.jar
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
